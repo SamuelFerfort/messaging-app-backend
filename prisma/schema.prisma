@@ -16,10 +16,30 @@ datasource db {
 
 model User {
   id String @id @default(uuid())
-  username String
+  firstName String
+  lastName String
   email String @unique
   password String
-  messages Message[] 
+  sentMessages Message[] @relation("SentMessages")
+  ReceivedMessages Message[] @relation("ReceivedMessages")
+  avatar String?
+  about String?
+  chats Chat[] @relation("UserChats")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt 
+  isOnline Boolean @default(false)
+  lastSeen DateTime @default(now())
+}
+
+model Chat {
+  id String @id @default(uuid())
+  name String?
+  isGroup Boolean @default(false)
+  users User[] @relation("UserChats")
+  messages Message[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  lastMessageAt DateTime @default(now())
 }
 
 
@@ -27,6 +47,22 @@ model Message {
   id String @id @default(uuid())
   content String
   timestamp DateTime @default(now())
-  userId String
-  user User @relation(references: [id], fields: [userId])
+  senderId String
+  sender User @relation("SentMessages",references: [id], fields: [senderId])
+  receiverId String
+  receiver User @relation("ReceivedMessages",references: [id], fields: [receiverId])
+  updatedAt DateTime @updatedAt
+  read Boolean
+  chat      Chat     @relation(fields: [chatId], references: [id])
+  chatId    String
+  type MessageType @default(TEXT)
+}
+
+
+enum MessageType {
+  TEXT
+  IMAGE
+  VIDEO
+  AUDIO
+  FILE
 }
