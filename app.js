@@ -2,10 +2,10 @@ const express = require("express");
 const logger = require("morgan");
 const authRouter = require("./routes/authRouter")
 const messagesRouter = require("./routes/messagesRouter")
-
+const passportInit = require('./config/passport');
 const app = express();
 
-
+passportInit(app)
 
 app.use(logger("dev"));
 
