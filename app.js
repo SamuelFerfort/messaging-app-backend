@@ -17,7 +17,7 @@ app.get("/", (req, res, next) => {
 });
 
 app.use("/api/auth/", authRouter);
-app.use("/api/messages/", messagesRouter);
+app.use("/api", messagesRouter);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);

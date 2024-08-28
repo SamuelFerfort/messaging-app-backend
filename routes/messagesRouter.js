@@ -6,6 +6,7 @@ const router = express.Router()
 
 router.use(verifyToken)
 
-
+router.get("/chats", controller.getChatsForUser)
+router.get("/users", controller.getUsers)
 
 module.exports = router
