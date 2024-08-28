@@ -1,34 +1,28 @@
 const express = require("express");
 const logger = require("morgan");
-const authRouter = require("./routes/authRouter")
-const messagesRouter = require("./routes/messagesRouter")
-const passportInit = require('./config/passport');
+const authRouter = require("./routes/authRouter");
+const messagesRouter = require("./routes/messagesRouter");
+const passportInit = require("./config/passport");
 const app = express();
-
-passportInit(app)
+const cors = require("cors");
+passportInit(app);
 
 app.use(logger("dev"));
+app.use(cors());
 
-
-app.use(express.json())
-app.use(express.urlencoded({extended: true}))
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.get("/", (req, res, next) => {
   res.send("Hello, World");
 });
 
-
-app.use("/api/auth/", authRouter)
-app.use("/api/messages/", messagesRouter)
-
-
-
+app.use("/api/auth/", authRouter);
+app.use("/api/messages/", messagesRouter);
 
 app.use((err, req, res, next) => {
-    console.error(err.stack)
-    res.status(500).send("Something broke!")
-})
-
-
+  console.error(err.stack);
+  res.status(500).send("Something broke!");
+});
 
 const PORT = process.env.PORT || 3000;
 

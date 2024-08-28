@@ -6,7 +6,6 @@ const Joi = require("joi");
 
 const prisma = new PrismaClient();
 
-
 const registerSchema = Joi.object({
   email: Joi.string().email().required(),
   password: Joi.string().min(8).required(),
@@ -25,7 +24,8 @@ exports.registerPost = async (req, res, next) => {
 
   const emailExists = await prisma.user.findUnique({ where: { email } });
 
-  if(emailExists) return res.status(400).json({ message: "Email already in use" });
+  if (emailExists)
+    return res.status(400).json({ message: "Email already in use" });
 
   if (error) return res.status(400).json({ message: error.details[0].message });
 
@@ -58,8 +58,7 @@ exports.loginPost = async (req, res, next) => {
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) return res.status(401).json({ message: "Email does not exist" });
 
-    const isMatch = bcrypt.compare(password, user.password);
-
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(401).json({ message: "Wrong Password" });
 
     const payload = {
