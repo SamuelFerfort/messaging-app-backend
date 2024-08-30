@@ -105,7 +105,7 @@ exports.startChat = async (req, res) => {
       where: {
         isGroup: false,
         users: {
-          every: {
+          some: {
             id: {
               in: [req.user.id, req.otherUserId],
             },
@@ -114,14 +114,27 @@ exports.startChat = async (req, res) => {
       },
     });
 
-    if (existingChat) return res.json(existingChat);
+    const userCount = await prisma.chat.count({
+      where: {
+        id: existingChat?.id,
+        users: {
+          some: {
+            id: {
+              notIn: [req.user.id, req.otherUserId],
+            },
+          },
+        },
+      },
+    });
+
+    if (existingChat && userCount === 0) return res.json(existingChat);
 
     // If no existing chat, create a new one
     const newChat = await prisma.chat.create({
       data: {
         isGroup: false,
         users: {
-          connect: [{ id: currentUserId }, { id: selectedUserId }],
+          connect: [{ id: req.user.id }, { id: req.otherUserId }],
         },
       },
     });
