@@ -99,9 +99,38 @@ exports.sendMessage = (req, res) => {
   // Logic to send a new message
 };
 
-exports.getChatMessages = (req, res) => {
-  const { chatId } = req.params;
-  // Logic to fetch messages for a specific chat
+exports.startChat = async (req, res) => {
+  try {
+    const existingChat = await prisma.chat.findFirst({
+      where: {
+        isGroup: false,
+        users: {
+          every: {
+            id: {
+              in: [req.user.id, req.otherUserId],
+            },
+          },
+        },
+      },
+    });
+
+    if (existingChat) return res.json(existingChat);
+
+    // If no existing chat, create a new one
+    const newChat = await prisma.chat.create({
+      data: {
+        isGroup: false,
+        users: {
+          connect: [{ id: currentUserId }, { id: selectedUserId }],
+        },
+      },
+    });
+
+    res.json(newChat);
+  } catch (err) {
+    console.error("Error creating new chat:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
 };
 
 exports.deleteMessage = (req, res) => {
