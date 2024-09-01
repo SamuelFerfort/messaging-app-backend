@@ -4,6 +4,8 @@ const { PrismaClient } = require("@prisma/client");
 const passport = require("passport");
 require("dotenv").config();
 
+const prisma = new PrismaClient();
+
 // JWT options
 const jwtOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -30,5 +32,4 @@ const passportInit = (app) => {
   );
 };
 
-
-module.exports = passportInit
+module.exports = passportInit;

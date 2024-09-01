@@ -107,25 +107,27 @@ exports.startChat = async (req, res) => {
         users: {
           some: {
             id: {
-              in: [req.user.id, req.otherUserId],
+              in: [req.user.id, req.body.otherUserId],
             },
           },
         },
       },
     });
-
+    console.log("Existing chat:", existingChat);
     const userCount = await prisma.chat.count({
       where: {
         id: existingChat?.id,
         users: {
           some: {
             id: {
-              notIn: [req.user.id, req.otherUserId],
+              notIn: [req.user.id, req.body.otherUserId],
             },
           },
         },
       },
     });
+
+    console.log("Users Count", userCount);
 
     if (existingChat && userCount === 0) return res.json(existingChat);
 
@@ -134,10 +136,12 @@ exports.startChat = async (req, res) => {
       data: {
         isGroup: false,
         users: {
-          connect: [{ id: req.user.id }, { id: req.otherUserId }],
+          connect: [{ id: req.user.id }, { id: req.body.otherUserId }],
         },
       },
     });
+
+    console.log("New Chat", newChat);
 
     res.json(newChat);
   } catch (err) {
