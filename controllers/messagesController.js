@@ -1,4 +1,5 @@
 const { PrismaClient } = require("@prisma/client");
+const formatChat = require("../helpers/formatChat");
 
 const prisma = new PrismaClient();
 
@@ -21,14 +22,16 @@ exports.getChatsForUser = async (req, res) => {
             firstName: true,
             lastName: true,
             avatar: true,
+            isOnline: true,
+            lastSeen: true,
           },
         },
         messages: {
           orderBy: {
             timestamp: "desc",
           },
-          take: 1,
           select: {
+            id: true,
             content: true,
             timestamp: true,
             senderId: true,
@@ -40,25 +43,7 @@ exports.getChatsForUser = async (req, res) => {
       },
     });
 
-    const formattedChats = chats.map((chat) => ({
-      id: chat.id,
-      name:
-        chat.name ||
-        (chat.users.length === 2
-          ? chat.users.find((u) => u.id !== userId)?.firstName +
-            " " +
-            chat.users.find((u) => u.id !== userId)?.lastName
-          : "Group Chat"),
-      isGroup: chat.isGroup,
-      lastMessage: chat.messages[0]
-        ? {
-            content: chat.messages[0].content,
-            timestamp: chat.messages[0].timestamp,
-            isOwnMessage: chat.messages[0].senderId === userId,
-          }
-        : null,
-      users: chat.users.filter((u) => u.id !== userId),
-    }));
+    const formattedChats = chats.map((chat) => formatChat(chat, userId));
 
     res.json(formattedChats);
   } catch (err) {
@@ -77,9 +62,7 @@ exports.getUsers = async (req, res) => {
         id: true,
         firstName: true,
         lastName: true,
-        email: true,
         avatar: true,
-        about: true,
         isOnline: true,
         lastSeen: true,
       },
@@ -96,6 +79,8 @@ exports.getUsers = async (req, res) => {
 };
 
 exports.sendMessage = (req, res) => {
+
+  
   // Logic to send a new message
 };
 
@@ -124,13 +109,16 @@ exports.startChat = async (req, res) => {
             lastSeen: true,
           },
         },
+        messages: {
+          orderBy: { timestamp: "desc" },
+        },
       },
+      orderBy: { lastMessageAt: "desc" },
     });
-    console.log("Existing chat:", existingChat);
-    console.log("Length:", existingChat.users.length);
 
-    if (existingChat && existingChat.users.length === 2) {
-      return res.json(existingChat);
+    console.log("Existing chat:", existingChat);
+    if (existingChat) {
+      return res.json(formatChat(existingChat, req.user.id));
     }
 
     // If no existing chat, create a new one
@@ -140,12 +128,28 @@ exports.startChat = async (req, res) => {
         users: {
           connect: [{ id: req.user.id }, { id: req.body.otherUserId }],
         },
+        include: {
+          users: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              email: true,
+              avatar: true,
+              about: true,
+              createdAt: true,
+              updatedAt: true,
+              isOnline: true,
+              lastSeen: true,
+            },
+          },
+          messages: true,
+        },
       },
     });
 
     console.log("New Chat", newChat);
-
-    res.json(newChat);
+    res.json(formatChat(chat, req.user.id));
   } catch (err) {
     console.error("Error creating new chat:", err);
     res.status(500).json({ error: "Internal server error" });
