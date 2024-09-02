@@ -60,11 +60,13 @@ exports.loginPost = async (req, res, next) => {
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(401).json({ message: "Wrong Password" });
-    
+
     const payload = {
       id: user.id,
       email: user.email,
       name: `${user.firstName} ${user.lastName}`,
+      avatar: user.avatar || null,
+      about: user.about || null,
     };
     const token = jwt.sign(payload, process.env.JWT_SECRET, {
       expiresIn: "24h",

@@ -143,7 +143,7 @@ exports.startChat = async (req, res) => {
     });
 
     console.log("New Chat", newChat);
-    res.json(formatChat(chat, req.user.id));
+    res.json(formatChat(newChat, req.user.id));
   } catch (err) {
     console.error("Error creating new chat:", err);
     res.status(500).json({ error: "Internal server error" });
