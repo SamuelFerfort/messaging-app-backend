@@ -16,7 +16,7 @@ const formatChat = (chat, userId) => ({
           isOwnMessage: chat.messages[0].senderId === userId,
         }
       : null,
-  users: chat.users.filter((u) => u.id !== userId),
+  receiver: chat.users.filter((u) => u.id !== userId),
   messages: chat.messages || [],
 });
 
