@@ -104,32 +104,34 @@ exports.startChat = async (req, res) => {
     const existingChat = await prisma.chat.findFirst({
       where: {
         isGroup: false,
+        AND: [
+          { users: { some: { id: req.user.id } } },
+          { users: { some: { id: req.body.otherUserId } } },
+        ],
+      },
+      include: {
         users: {
-          some: {
-            id: {
-              in: [req.user.id, req.body.otherUserId],
-            },
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            avatar: true,
+            about: true,
+            createdAt: true,
+            updatedAt: true,
+            isOnline: true,
+            lastSeen: true,
           },
         },
       },
     });
     console.log("Existing chat:", existingChat);
-    const userCount = await prisma.chat.count({
-      where: {
-        id: existingChat?.id,
-        users: {
-          some: {
-            id: {
-              notIn: [req.user.id, req.body.otherUserId],
-            },
-          },
-        },
-      },
-    });
+    console.log("Length:", existingChat.users.length);
 
-    console.log("Users Count", userCount);
-
-    if (existingChat && userCount === 0) return res.json(existingChat);
+    if (existingChat && existingChat.users.length === 2) {
+      return res.json(existingChat);
+    }
 
     // If no existing chat, create a new one
     const newChat = await prisma.chat.create({
