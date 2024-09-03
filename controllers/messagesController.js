@@ -1,5 +1,9 @@
 const { PrismaClient } = require("@prisma/client");
 const formatChat = require("../helpers/formatChat");
+const cloudinary = require("../config/cloudinary");
+const multer = require("multer");
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
 const prisma = new PrismaClient();
 
@@ -24,6 +28,7 @@ exports.getChatsForUser = async (req, res) => {
             avatar: true,
             isOnline: true,
             lastSeen: true,
+            about: true
           },
         },
         messages: {
@@ -115,7 +120,6 @@ exports.startChat = async (req, res) => {
       return res.json(formatChat(existingChat, req.user.id));
     }
 
-    // If no existing chat, create a new one
     const newChat = await prisma.chat.create({
       data: {
         isGroup: false,
@@ -150,39 +154,82 @@ exports.startChat = async (req, res) => {
   }
 };
 
-exports.sendMessage = async (req, res) => {
-  const { content, receiverId } = req.body;
-  const chatId = req.params.chatId;
-  const senderId = req.user.id;
+exports.sendMessage = [
+  upload.single("image"),
 
-  try {
-    const message = await prisma.message.create({
-      data: {
-        content,
-        read: false,
-        chat: {
-          connect: { id: chatId },
-        },
-        sender: {
-          connect: { id: senderId },
-        },
-        receiver: {
-          connect: { id: receiverId },
-        },
-      },
-      include: {
-        sender: true,
-        receiver: true,
-        chat: true,
-      },
-    });
+  async (req, res) => {
+    const { content, receiverId, type } = req.body;
+    const chatId = req.params.chatId;
+    const senderId = req.user.id;
 
-    res.status(201).json(message);
-  } catch (err) {
-    console.error("Error creating message:", err);
-    res.status(500).json({ error: "Internal server error" });
-  }
-};
+    console.log("Content:" ,content)
+    console.log("File:" ,req.file)
+
+    console.log("Type:" ,type)
+
+
+    if (!content && !req.file) {
+      console.log("no content or file bad request")
+      return res.status(400).json({ message: "Content required" });
+    }
+      
+
+    if (type !== "TEXT" && type !== "IMAGE") {
+      console.log("BAD TYPE REQUEST")
+      return res.status(400).json({ error: "Invalid message type" });
+    }
+
+    let messageContent = content;
+    if (type === "IMAGE") {
+      if (!req.file) {
+        return res.status(400).json({ error: "No image file provided" });
+      }
+      try {
+        // Convert the buffer to a base64-encoded string
+        const fileStr = `data:${
+          req.file.mimetype
+        };base64,${req.file.buffer.toString("base64")}`;
+
+        const result = await cloudinary.uploader.upload(fileStr, {
+          folder: "image_messages",
+        });
+        messageContent = result.secure_url;
+      } catch (uploadError) {
+        console.error("Error uploading image to Cloudinary:", uploadError);
+        return res.status(500).json({ error: "Failed to upload image" });
+      }
+    }
+
+    try {
+      const message = await prisma.message.create({
+        data: {
+          content: messageContent,
+          read: false,
+          type: type,
+          chat: {
+            connect: { id: chatId },
+          },
+          sender: {
+            connect: { id: senderId },
+          },
+          receiver: {
+            connect: { id: receiverId },
+          },
+        },
+        include: {
+          sender: true,
+          receiver: true,
+          chat: true,
+        },
+      });
+
+      res.status(201).json(message);
+    } catch (err) {
+      console.error("Error creating message:", err);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  },
+];
 
 exports.getMessages = async (req, res) => {
   const { chatId } = req.params;

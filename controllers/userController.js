@@ -19,14 +19,12 @@ exports.updateAvatar = [
         req.file.mimetype
       };base64,${req.file.buffer.toString("base64")}`;
 
-      // Upload the base64 string to Cloudinary
       const result = await cloudinary.uploader.upload(fileStr, {
         folder: "user_avatars",
       });
 
       const userId = req.user.id;
 
-      // Update the user with the new avatar URL
       const user = await prisma.user.update({
         where: { id: userId },
         data: { avatar: result.secure_url },
