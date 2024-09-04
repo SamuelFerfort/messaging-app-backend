@@ -7,6 +7,39 @@ const upload = multer({ storage });
 
 const prisma = new PrismaClient();
 
+exports.startGroup = async (req, res) => {
+  const { userIds, name } = req.body;
+
+  if (!name || name.trim().length === 0 || name.length > 30) {
+    return res.status(400).json({ message: "Invalid name input" });
+  }
+
+  try {
+    const uniqueUserIds = Array.from(
+      new Set([...userIds.map((user) => user.id), req.user.id])
+    );
+
+    const group = await prisma.chat.create({
+      data: {
+        isGroup: true,
+        name: name.trim(),
+        users: {
+          connect: uniqueUserIds.map((id) => ({ id })),
+        },
+      },
+      include: {
+        users: true,
+      },
+    });
+
+    const formattedGroupChat = formatChat(group, req.user.id);
+    res.status(201).json({ success: true, group: formattedGroupChat });
+  } catch (err) {
+    console.error("Error creating group chat:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 exports.getChatsForUser = async (req, res) => {
   const userId = req.user.id;
 
@@ -28,7 +61,7 @@ exports.getChatsForUser = async (req, res) => {
             avatar: true,
             isOnline: true,
             lastSeen: true,
-            about: true
+            about: true,
           },
         },
         messages: {
@@ -162,20 +195,13 @@ exports.sendMessage = [
     const chatId = req.params.chatId;
     const senderId = req.user.id;
 
-    console.log("Content:" ,content)
-    console.log("File:" ,req.file)
-
-    console.log("Type:" ,type)
-
-
     if (!content && !req.file) {
-      console.log("no content or file bad request")
+      console.log("no content or file bad request");
       return res.status(400).json({ message: "Content required" });
     }
-      
 
     if (type !== "TEXT" && type !== "IMAGE") {
-      console.log("BAD TYPE REQUEST")
+      console.log("BAD TYPE REQUEST");
       return res.status(400).json({ error: "Invalid message type" });
     }
 
@@ -237,6 +263,13 @@ exports.getMessages = async (req, res) => {
   try {
     const messages = await prisma.message.findMany({
       where: { chatId },
+      include: {
+        sender: {
+          select: {
+            avatar: true,
+          },
+        },
+      },
     });
 
     res.json(messages);
@@ -248,5 +281,4 @@ exports.getMessages = async (req, res) => {
 
 exports.deleteMessage = async (req, res) => {
   const { messageId } = req.params;
-  // Logic to delete a specific message
 };

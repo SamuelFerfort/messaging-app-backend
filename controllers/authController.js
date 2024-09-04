@@ -48,7 +48,7 @@ exports.registerPost = async (req, res, next) => {
   }
 };
 
-exports.loginPost = async (req, res, next) => {
+exports.loginPost = async (req, res) => {
   const { email, password } = req.body;
 
   const { error } = loginSchema.validate(req.body);
