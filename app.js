@@ -19,7 +19,7 @@ app.use(
 );
 
 passportInit(app);
-
+console.log("DATABASE_URL:", process.env.DATABASE_URL);
 app.use(logger("dev"));
 
 app.use("/api/auth/", authRouter);
