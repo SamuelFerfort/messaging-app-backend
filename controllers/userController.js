@@ -28,6 +28,12 @@ exports.updateAvatar = [
       const user = await prisma.user.update({
         where: { id: userId },
         data: { avatar: result.secure_url },
+        select: {
+          firstName: true,
+          lastName: true,
+          avatar: true,
+          about: true,
+        },
       });
 
       res.json({ success: true, user });
@@ -40,11 +46,17 @@ exports.updateAvatar = [
 
 exports.updateAbout = async (req, res) => {
   const about = req.body.about;
-    
+
   try {
     const user = await prisma.user.update({
       where: { id: req.user.id },
       data: { about },
+      select: {
+        firstName: true,
+        lastName: true,
+        avatar: true,
+        about: true,
+      },
     });
     res.json({ success: true, user });
   } catch (err) {

@@ -48,6 +48,28 @@ exports.registerPost = async (req, res, next) => {
   }
 };
 
+exports.getUser = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const user = await prisma.user.findFirst({
+      where: { id: userId },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        about: true,
+        avatar: true,
+      },
+    });
+
+    res.json(user);
+  } catch (err) {
+    console.error("Error getting user info:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 exports.loginPost = async (req, res) => {
   const { email, password } = req.body;
 
@@ -64,7 +86,8 @@ exports.loginPost = async (req, res) => {
     const payload = {
       id: user.id,
       email: user.email,
-      name: `${user.firstName} ${user.lastName}`,
+      firstName: user.firstName,
+      lastName: user.lastName,
       avatar: user.avatar || null,
       about: user.about || null,
     };

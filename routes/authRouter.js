@@ -11,7 +11,7 @@ router.post("/login", controller.loginPost)
 
 router.post("/register", controller.registerPost)
 
-
+router.get("/user/:userId", controller.getUser)
 
 
 
