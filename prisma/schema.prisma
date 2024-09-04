@@ -24,6 +24,7 @@ model User {
   ReceivedMessages Message[] @relation("ReceivedMessages")
   avatar String?
   about String?
+  avatarPublicId String?
   chats Chat[] @relation("UserChats")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt 

@@ -2,6 +2,8 @@ const { PrismaClient } = require("@prisma/client");
 const formatChat = require("../helpers/formatChat");
 const cloudinary = require("../config/cloudinary");
 const multer = require("multer");
+const fileSizeLimit = require("../middleware/fileSizeLimit");
+
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
@@ -152,7 +154,6 @@ exports.startChat = async (req, res) => {
       orderBy: { lastMessageAt: "desc" },
     });
 
-    console.log("Existing chat:", existingChat);
     if (existingChat) {
       return res.json(formatChat(existingChat, req.user.id));
     }
@@ -183,7 +184,6 @@ exports.startChat = async (req, res) => {
       },
     });
 
-    console.log("New Chat", newChat);
     res.json(formatChat(newChat, req.user.id));
   } catch (err) {
     console.error("Error creating new chat:", err);
@@ -193,19 +193,17 @@ exports.startChat = async (req, res) => {
 
 exports.sendMessage = [
   upload.single("image"),
-
+  fileSizeLimit,
   async (req, res) => {
     const { content, receiverId, type } = req.body;
     const chatId = req.params.chatId;
     const senderId = req.user.id;
 
     if (!content && !req.file) {
-      console.log("no content or file bad request");
       return res.status(400).json({ message: "Content required" });
     }
 
     if (type !== "TEXT" && type !== "IMAGE") {
-      console.log("BAD TYPE REQUEST");
       return res.status(400).json({ error: "Invalid message type" });
     }
 

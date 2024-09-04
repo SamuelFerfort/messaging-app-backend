@@ -25,9 +25,19 @@ exports.updateAvatar = [
 
       const userId = req.user.id;
 
+      const currentUser = await prisma.user.findFirst({
+        where: { id: userId },
+        select: { avatarPublicId: true },
+      });
+
+      console.log(currentUser.avatarPublicId);
+      if (currentUser.avatarPublicId) {
+        await cloudinary.uploader.destroy(currentUser.avatarPublicId);
+      }
+
       const user = await prisma.user.update({
         where: { id: userId },
-        data: { avatar: result.secure_url },
+        data: { avatar: result.secure_url, avatarPublicId: result.public_id },
         select: {
           firstName: true,
           lastName: true,
