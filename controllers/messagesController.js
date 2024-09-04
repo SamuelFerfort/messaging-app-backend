@@ -14,6 +14,10 @@ exports.startGroup = async (req, res) => {
     return res.status(400).json({ message: "Invalid name input" });
   }
 
+  if (userIds.length <= 0) {
+    return res.status(400).json({ message: "Invalid users input" });
+  }
+
   try {
     const uniqueUserIds = Array.from(
       new Set([...userIds.map((user) => user.id), req.user.id])
