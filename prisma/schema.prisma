@@ -16,7 +16,7 @@ datasource db {
 
 model User {
   id String @id @default(uuid())
-  firstName String
+  firstName String 
   lastName String
   email String @unique
   password String
@@ -34,7 +34,7 @@ model User {
 
 model Chat {
   id String @id @default(uuid())
-  name String?
+  name String? @unique
   isGroup Boolean @default(false)
   users User[] @relation("UserChats")
   messages Message[]

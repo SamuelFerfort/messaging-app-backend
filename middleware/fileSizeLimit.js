@@ -4,7 +4,7 @@ const fileSizeLimit = (req, res, next) => {
   if (req.file && req.file.size > MAX_FILE_SIZE) {
     return res
       .status(400)
-      .json({ error: "File size exceeds the limit of 5 MB" });
+      .json({ message: "File size exceeds the limit of 3 MB" });
   }
   next();
 };

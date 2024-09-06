@@ -1,6 +1,7 @@
 const { PrismaClient } = require("@prisma/client");
 const multer = require("multer");
 const cloudinary = require("../config/cloudinary");
+const fileSizeLimit = require("../middleware/fileSizeLimit");
 const prisma = new PrismaClient();
 
 const storage = multer.memoryStorage();
@@ -8,6 +9,7 @@ const upload = multer({ storage });
 
 exports.updateAvatar = [
   upload.single("avatar"),
+  fileSizeLimit,
   async (req, res) => {
     try {
       if (!req.file) {

@@ -32,12 +32,23 @@ exports.registerPost = async (req, res, next) => {
   const hashedPassword = await bcrypt.hash(password, 10);
 
   try {
-    await prisma.user.create({
+    const user = await prisma.user.create({
       data: {
         email,
         password: hashedPassword,
         firstName,
         lastName,
+      },
+    });
+
+    await prisma.chat.update({
+      where: {
+        name: "The Odin Project Chads",
+      },
+      data: {
+        users: {
+          connect: [{ id: user.id }],
+        },
       },
     });
 
