@@ -81,13 +81,16 @@ module.exports = function (io) {
         }
 
         if (type !== "TEXT" && type !== "IMAGE") {
-          return res.status(400).json({ error: "Invalid message type" });
+          return res.status(400).json({ message: "Invalid message type" });
         }
-
+        
+        if(type === "TEXT" && content.length > 70) {
+          return res.status(400).json({message: "Bro thats is too long"})
+        }
         let messageContent = content;
         if (type === "IMAGE") {
           if (!req.file) {
-            return res.status(400).json({ error: "No image file provided" });
+            return res.status(400).json({ message: "No image file provided" });
           }
           try {
             // Convert the buffer to a base64-encoded string
@@ -101,7 +104,7 @@ module.exports = function (io) {
             messageContent = result.secure_url;
           } catch (uploadError) {
             console.error("Error uploading image to Cloudinary:", uploadError);
-            return res.status(500).json({ error: "Failed to upload image" });
+            return res.status(500).json({ message: "Failed to upload image" });
           }
         }
 
@@ -151,7 +154,7 @@ module.exports = function (io) {
           res.status(201).json(message);
         } catch (err) {
           console.error("Error creating message:", err);
-          res.status(500).json({ error: "Internal server error" });
+          res.status(500).json({ message: "Internal server error" });
         }
       },
     ],
@@ -221,7 +224,7 @@ module.exports = function (io) {
         res.json(formatChat(newChat, req.user.id));
       } catch (err) {
         console.error("Error creating new chat:", err);
-        res.status(500).json({ error: "Internal server error" });
+        res.status(500).json({ message: "Internal server error" });
       }
     },
 

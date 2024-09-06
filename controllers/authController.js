@@ -9,8 +9,8 @@ const prisma = new PrismaClient();
 const registerSchema = Joi.object({
   email: Joi.string().email().required(),
   password: Joi.string().min(8).required(),
-  firstName: Joi.string().required(),
-  lastName: Joi.string().required(),
+  firstName: Joi.string().required().max(15),
+  lastName: Joi.string().required().max(15),
 });
 
 const loginSchema = Joi.object({
