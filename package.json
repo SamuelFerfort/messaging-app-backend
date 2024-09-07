@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npx prisma migrate deploy && node --watch app.js"
+    "start": "node --watch app.js"
   },
   "keywords": [],
   "author": "",
