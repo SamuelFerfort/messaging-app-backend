@@ -16,8 +16,8 @@ datasource db {
 
 model User {
   id String @id @default(uuid())
-  firstName String 
-  lastName String
+  firstName String @unique
+  lastName String  
   email String @unique
   password String
   sentMessages Message[] @relation("SentMessages")
