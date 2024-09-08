@@ -20,3 +20,9 @@ primary_region = 'iad'
   memory = '1gb'
   cpu_kind = 'shared'
   cpus = 1
+
+[deploy]
+  release_command = "npx prisma migrate deploy"
+
+[processes]
+  app = "node app.js"

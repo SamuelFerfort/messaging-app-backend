@@ -1,0 +1,8 @@
+Prisma schema loaded from schema.prisma
+Datasource "db": PostgreSQL database "postgres", schema "public" at "slickly-true-lionfish.data-1.use1.tembo.io:5432"
+
+- Introspecting based on datasource defined in schema.prisma
+✔ Introspected 3 models and wrote them into schema.prisma in 3.77s
+      
+Run prisma generate to generate Prisma Client.
+
