@@ -20,7 +20,7 @@ model User {
   updatedAt        DateTime  @updatedAt
   isOnline         Boolean   @default(false)
   lastSeen         DateTime  @default(now())
-  ReceivedMessages Message[] @relation("ReceivedMessages")
+  receivedMessages Message[] @relation("ReceivedMessages")
   sentMessages     Message[] @relation("SentMessages")
   chats            Chat[]    @relation("UserChats")
 }
