@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,52 +7,49 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model User {
-  id String @id @default(uuid())
-  firstName String 
-  lastName String  
-  email String @unique
-  password String
-  sentMessages Message[] @relation("SentMessages")
+  id               String    @id @default(uuid())
+  firstName        String
+  lastName         String
+  email            String    @unique
+  password         String
+  avatar           String?
+  about            String?
+  avatarPublicId   String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  isOnline         Boolean   @default(false)
+  lastSeen         DateTime  @default(now())
   ReceivedMessages Message[] @relation("ReceivedMessages")
-  avatar String?
-  about String?
-  avatarPublicId String?
-  chats Chat[] @relation("UserChats")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt 
-  isOnline Boolean @default(false)
-  lastSeen DateTime @default(now())
+  sentMessages     Message[] @relation("SentMessages")
+  chats            Chat[]    @relation("UserChats")
 }
 
 model Chat {
-  id String @id @default(uuid())
-  name String? @unique
-  isGroup Boolean @default(false)
-  users User[] @relation("UserChats")
-  messages Message[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  lastMessageAt DateTime @default(now())
+  id            String    @id @default(uuid())
+  name          String?   @unique
+  isGroup       Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  lastMessageAt DateTime  @default(now())
+  messages      Message[]
+  users         User[]    @relation("UserChats")
 }
-
 
 model Message {
-  id String @id @default(uuid())
-  content String
-  timestamp DateTime @default(now())
-  senderId String
-  sender User @relation("SentMessages",references: [id], fields: [senderId])
+  id         String      @id @default(uuid())
+  content    String
+  timestamp  DateTime    @default(now())
+  senderId   String
   receiverId String
-  receiver User @relation("ReceivedMessages",references: [id], fields: [receiverId])
-  updatedAt DateTime @updatedAt
-  read Boolean
-  chat      Chat     @relation(fields: [chatId], references: [id])
-  chatId    String
-  type MessageType @default(TEXT)
+  updatedAt  DateTime    @updatedAt
+  read       Boolean
+  chatId     String
+  type       MessageType @default(TEXT)
+  chat       Chat        @relation(fields: [chatId], references: [id])
+  receiver   User        @relation("ReceivedMessages", fields: [receiverId], references: [id])
+  sender     User        @relation("SentMessages", fields: [senderId], references: [id])
 }
-
 
 enum MessageType {
   TEXT
