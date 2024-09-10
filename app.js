@@ -3,7 +3,7 @@ const logger = require("morgan");
 const http = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
-const verifyToken = require("./middleware/verifyToken"); // Make sure this path is correct
+const verifyToken = require("./middleware/verifyToken"); 
 require("dotenv").config();
 
 const app = express();

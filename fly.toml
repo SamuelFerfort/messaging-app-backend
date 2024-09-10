@@ -1,10 +1,10 @@
-# fly.toml app configuration file generated for messaging-app-backend-frosty-bush-4188 on 2024-09-04T05:11:50+02:00
+# fly.toml app configuration file generated for messaging-app-backend-winter-wildflower-9585 on 2024-09-08T02:41:06+02:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'messaging-app-backend-frosty-bush-4188'
-primary_region = 'iad'
+app = 'messaging-app-backend-winter-wildflower-9585'
+primary_region = 'mad'
 
 [build]
 
@@ -23,6 +23,3 @@ primary_region = 'iad'
 
 [deploy]
   release_command = "npx prisma migrate deploy"
-
-[processes]
-  app = "node app.js"
