@@ -81,6 +81,14 @@ app.use("/api/auth/", authRouter);
 app.use("/api", messagesRouter);
 app.use("/api/user/", userRouter);
 
+const keepAlive = () => {
+  console.log("Keep-alive ping at", new Date().toISOString());
+};
+
+// Ping every 25 minutes 
+setInterval(keepAlive, 25 * 60 * 1000);
+
+
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ message: "Something broke!" });
