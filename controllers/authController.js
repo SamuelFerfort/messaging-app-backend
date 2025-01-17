@@ -41,17 +41,6 @@ exports.registerPost = async (req, res, next) => {
       },
     });
 
-    await prisma.chat.update({
-      where: {
-        name: "The Odin Project Chads",
-      },
-      data: {
-        users: {
-          connect: [{ id: user.id }],
-        },
-      },
-    });
-
     res.status(201).json({ success: true });
   } catch (err) {
     console.error("Error registering the user:", err);

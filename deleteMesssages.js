@@ -1,4 +1,4 @@
-const { PrismaClient } = require("@prisma/client")
+const { PrismaClient } = require("@prisma/client");
 
 const prisma = new PrismaClient();
 
@@ -34,5 +34,14 @@ async function deleteAllUserMessages(firstName, lastName) {
   }
 }
 
+// Command-line argument to get the handler
+const firstName = process.argv[2];
+const secondName = process.argv[3];
+
+if (!firstName || !secondName) {
+  console.log("Usage: node deleteMesssages.js firstName lastName");
+  process.exit(1);
+}
+
 // Usage
-deleteAllUserMessages("Gordon", "Ramsay");
+deleteAllUserMessages(firstName, secondName);
